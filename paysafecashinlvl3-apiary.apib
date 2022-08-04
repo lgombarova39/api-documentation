@@ -478,6 +478,7 @@ DELETE /payments/id/
 |`feature_disabled`                                                         |3172               |400            |Feature not active disabled|
 |`general_error`                                                            |3017               |400            |It is mandatory to send an MCID.|
 |`general_error`                                                            |3019               |400            |MCID contains invalid values.|
+|`merchant_client_limit_reached`                                            |33005              |400            |Merchant client limit reached|
 
 
 Other errors can be communicated to the customer as “general technical error”. 
@@ -800,6 +801,6 @@ For live accounts, techsupport@paysafecard.com should be contacted.
 + customer (object)
     + id: clientid6HzDvoZSodKDJ7X7VQKrtestAutomation
     + email: BsQYjSivOF@xmfaCdnvIK.RlA
-+ status : SUCCESSFULEUpdated
++ status : SUCCESS
 + customer_currency: EUR
 + customer_amount: 0.01 (number)
