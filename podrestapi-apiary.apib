@@ -628,41 +628,44 @@ EOF;56
 
 # Group Annex: Fiscal Code Usage
 The Pin-on-Demand API supports orders where a fiscal code must be provided by the customer during sales processing at the POS.
+This can be done to either make a direct top-up to the customer’s account, or to print a PIN which is associated to the customer based on the fiscal code provided.
 
 ### Flow and process description
-![transaction_flow_pod](https://www.paysafecard.com/fileadmin/api/images/pod_flow-IT.PNG "Pin-on-Demand")
 
-1. The customer requests a paysafecard PIN for an available face value at a POS and shows its fiscal code
+1. The customer requests a paysafecard PIN for an available face value at a POS and shows their fiscal code
+2. The POS employee selects the product and face value
+3. The POS employee scans/enters the customer fiscal code
+4. An `execute order` request is made to the paysafecard system, including the customer fiscal code
+5. paysafecard performs validation checks and a valid response is returned (the status of the order is **DELIVERED**)
+    * 5.1 For direct top-up, this includes the customer’s credit limit, terminal limits, account status and fiscal code
+    * 5.2 For a normal PIN request, this only includes the fiscal code
+6. The cooldown period (5 minutes) starts, and the card is temporarily locked for this period
+7. The voucher is printed by the business partner system containing the serial number, product, face value, currency, date, terminal ID and the T & C’s and handed out to the customer
+    * 7.1 For a PIN sale, the PIN is printed normally
+    * 7.2 For a direct top-up, no PIN is printed
+8. (**Optional**) A cancellation can be made via the `cancel order` request during the cooldown period (the status of the order is **CANCELLED**)
+9. paysafecard performs validation checks (order status, order id, date) and a valid response is returned
+10. A cancellation receipt is printed by the business partner system and handed out to the customer
 
-1. The POS employee selects the product and face value 
-
-1. The POS employee scans/enters the customer fiscal code
-
-1. An `execute order` request is made to the paysafecard system, including the customer fiscal code
-
-1. paysafecard performs validation checks (credit limit, terminal limits, account status, fiscal code) and a valid response is returned (the status of the order is **DELIVERED**)
-
-1. The cooldown period (5 minutes) starts and the card is temporarily locked for this period
-
-1. The voucher is printed by the business partner system containing the serial number, product, face value, currency, date, terminal Id and the T & C’s and handed out to the customer
-
-1. (**Optional**) A cancellation can be made via the `cancel order` request during the cooldown period (the status of the order is **CANCELLED**)
-
-1. paysafecard performs validation checks (order status, order id, date) and a valid response is returned
-
-1. A cancellation receipt is printed by the business partner system and handed out to the customer
-
-**Note**: As the amount is loaded directly into the customer my paysafecard account, the implementation of `cancel order` 
+**Note**: If the amount is loaded directly into the customer my paysafecard account, the implementation of `cancel order` 
 at the POS is mandatory to avoid possible fraud cases.
+
+**POS flow**
+![pod_tax_id_pos](https://www.paysafecard.com/fileadmin/api/images/pod_tax_id_pos.png "tax id pos")
+
+**Customer flow**
+![pod_tax_id_customer](https://www.paysafecard.com/fileadmin/api/images/pod_tax_id_customer.png "tax id customer")
 
 
 # Executing an order [/orders]
 To accommodate this, the following changes must be made to the `execute order` request
 
-- The parameter `delivery_type` must be set to "ACCOUNT" 
-    
-- The `customer` parameter must contain the `id_type` field set to "CIVIL_NUMBER" and the `id` field must include the fiscal code (all upper case letters without spaces)
-
+1. The parameter `delivery_type` needs to be set to
+    * 1.1 "ACCOUNT" for "direct top-up"
+    * 1.2 "RETURN" for PIN sale
+2. The `customer` parameter must contain:
+    * 2.1 the `id_type` field set to "CIVIL_NUMBER"
+    * 2.2 the `id` field set to the fiscal code (all upper case letters without spaces)
 
 A request example and response can be found in detail below:
 
@@ -711,9 +714,11 @@ are listed with the corresponding description.
 
 |Code|Number|Message|
 |---|---|---|
-|`illegal_customer_id_type`                             |10026|CustomerId type CIVIL_NUMBER is not allowed in country XX
-|`account_not_found_for_mobile`                         |3036|No valid Account found with '{0}'='{1}'
+|`illegal_customer_id_type`                             |10026|CustomerId type CIVIL_NUMBER is not allowed in country XX.
+|`account_not_found_for_mobile`                         |3036|No valid Account found with '{0}'='{1}'.
 |`transaction_limit_reached_sdd_upgrade_possible`       |3052|With this topup your balance would be higher than your remaining spending limit.
+|`civil_number_enforced_but_not_provided`       |31621|The CIVIL_NUMBER must be provided for this distributor.
+
 
 Other errors can be communicated to the customer as “general technical error”. 
 
