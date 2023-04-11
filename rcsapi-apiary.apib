@@ -66,6 +66,8 @@ This section describes in detail the technical process of an RC request.
 
     3.1. If paysafecard needs more information before completing the request, paysafecard updates the business partner with the RC status "pending". In this case the business partner must contact [psp.support@paysafe.com]() with the RC name.
 
+1. *(optional)* The business partner checks the status of the RC request with a GET request.
+
 # Group RC Request API Information
 The following section provides additional information about the API.
 
@@ -129,6 +131,7 @@ POST /submerchants/
                     "country": "DE"
                 }],
                 "type_of_business": "SPORTSBOOK",
+                "mcc": "7995",
                 "webshops": [{
                     "url": "https://my.test.com"
                 },{
@@ -157,6 +160,36 @@ POST /submerchants/
         "request_id": "psc_subid_IO7DMI148X183oCcHlS7"
         }
 
+## Checking requested RC status [/submerchants/]
+
+The *get rc status* call is used to check the current status of a requested RC. 
+
+### get rc status [GET]
+```
+GET /submerchants/{submerchant_id}
+```
+
++ Request
+
+    + Headers
+            
+            Authorization: Basic cHNjX3BrMGpSdTlndmJ0YXhMVU52R0Q3U0dncUdndGtpYnE=
+            Content-Type: application/json
+    
++ Parameters
+    + `submerchant_id` (`rc01`) - RC ID.
+     
++ Response 200 (application/json)
+
+        {
+            "id": "rc01",
+            "status": "pending",
+            "mids": [
+                "4786119778"
+            ],
+            "reason_text": "Item description insufficient"
+        }
+
 # Group RC Request API Parameters
 This section describes all parameters details of the [*request rc*](#request_rc) call and response.
 
@@ -170,6 +203,7 @@ This section describes all parameters details of the [*request rc*](#request_rc)
 | `licenses`                    | array     | optional*  | -                        | The licenses array containing all the RC licenses per country. <br></br> *Mandatory, when the type of business is "BINARY_OPTIONS_SPREAD_BETTING", "FOREX", "PREPAID_CARDS_TOPUPS", "WALLETS", "POKER" or "SPORTSBOOK".
 | `country`                     | string    | mandatory  | AT                       | The license country. <br></br> ISO 3166-1 (2 letter country code). <br></br> Mandatory as soon as a license object is given. 
 | `type_of_business`            | string    | mandatory  | SPORTSBOOK               | The RC type of business (sub channel). <br></br> Max. 60 characters. <br></br> List of all possible values [here](#type_of_business).
+| `mcc`                         | string    | optional   | 7995                     | The RC MCC (merchant category code) (sub channel). <br></br> Either `type_of_business` OR `mcc` need to be supplied. <br></br> List of all possible values [here](#type_of_business).
 | `webshops`                    | array     | mandatory  | -                        | The webshop array contaning all the RC urls. <br></br> Max. 5 urls per RC.
 | `url`                         | string    | mandatory  | https://my.test.com      | The webshop url. <br></br> Max. 80 characters. <br></br> Must be a valid url including protocol (see example).
 | `products`                    | array     | mandatory  | -                        | The RC products and features array. <br></br> Max. 2 products per RC.
@@ -195,7 +229,7 @@ This section describes all the relevant API error codes.
 |`general_technical_error`      |10007              |500            |General technical error.|
 |`invalid_api_key`              |10008              |401            |Authentication failed due to missing or invalid API key. Your key needs to be set to the HTTP auth header.|
 |`invalid_request_parameter`    |10028              |400            |One of the request parameters failed validation. The `message` and `param` fields contain more detailed information.|
-|`iduplicate_request`           |4001               |400            |Submerchant has already been requested.|
+|`duplicate_request`            |4001               |400            |Submerchant has already been requested.|
 
 *Below is an example of an error response:*
 
@@ -316,94 +350,94 @@ The digest functions can be used to verify digital signatures using message dige
 <a name="type_of_business"></a>
 The values allowed for the `type_of_business` (sub channel) parameter are:
 
-| Channel | Subchannel (`type_of_business`) |
-| ---  | ---                   | 
-| ENTERTAINMENT | CLOUD_STORAGE_BACKUP_SERVICES|
-| ENTERTAINMENT | ROYALTY_FREE_IMAGES|
-| ENTERTAINMENT | SOFTWARE_DOWNLOAD|
-| ENTERTAINMENT | MEDIA_AUDIO_VIDEO|
-| ENTERTAINMENT | TCOMMERCE|
-| ENTERTAINMENT | WEBHOSTING|
-| ENTERTAINMENT | DATING|
-| ENTERTAINMENT | FORTUNE_TELLING_CONSULTING|
-| ENTERTAINMENT | SOCIAL_NETWORKS_PORTALS|
-| ENTERTAINMENT | MESSAGING_TELEPHONY|
-| ENTERTAINMENT | FILEHOSTING|
-| ENTERTAINMENT | TIPSTER|
-| ENTERTAINMENT | CLASSIFIEDS|
-| ENTERTAINMENT | CHARITY|
-| GAMES | ONLINE_GAMES|
-| GAMES | SKILL_GAMES|
-| GAMES | FANTASY_SPORTS|
-| GAMES | VIRTUAL_ITEMS|
-| GAMES | ESPORTS|
-| GAMES | GAME_SERVER|
-| GAMES | GAMES_ERETAIL|
-| GAMES | STREAMING_GAMES|
-| GAMES | BOXED_VIDEO_GAMES_PHYS_COPIES|
-| GAMES | GAMES_MERCHANDISE|
-| GAMES | BOARD_GAMES_TABLETOPS|
-| GAMES | GAMES_TICKETS|
-| GAMES | GAMES_HARDWARE|
-| GAMES | COMIC_BOOKS_GAMES_LITERATURE|
-| GAMES | TOYS|
-| GAMES | SOCIAL_GAMBLING|
-| ERETAIL | CONSUMER_GOODS|
-| ERETAIL | AUCTIONS|
-| ERETAIL | VOUCHERSHOP|
-| ERETAIL | FASHION|
-| ERETAIL | ELECTRONICS|
-| ERETAIL | SPORTS_FITNESS|
-| ERETAIL | HOME|
-| ERETAIL | DIY_HOBBY|
-| ERETAIL | PERSONAL_CARE|
-| ERETAIL | DRUGS_MEDICATION|
-| ERETAIL | LUXURY_GOODS|
-| ERETAIL | DELIVERY_SERVICE|
-| ERETAIL | TICKETING_FOR_EVENTS|
-| ERETAIL | OTHER_ERETAIL|
-| GIFTCARDS | GIFTCARDS|
-| VOUCHERS | VOUCHERS|
-| FINANCIAL_SERVICES | BINARY_OPTIONS_SPREAD_BETTING|
-| FINANCIAL_SERVICES | WALLETS|
-| FINANCIAL_SERVICES | PREPAID_CARDS_TOPUPS|
-| FINANCIAL_SERVICES | FOREX|
-| FINANCIAL_SERVICES | COLLECTION_SERVICE|
-| FINANCIAL_SERVICES | ALTERNATIVE_BANKING|
-| FINANCIAL_SERVICES | BANK_PAYSAFE_LICENSE|
-| FINANCIAL_SERVICES | BANK_BANK_LICENSE|
-| FINANCIAL_SERVICES | INSURANCE|
-| FINANCIAL_SERVICES | LOAN_PROVIDER|
-| FINANCIAL_SERVICES | MONEY_REMITTANCE|
-| POKER | POKER|
-| POKER | LOTTERY|
-| POKER | CASINO|
-| POKER | BINGO|
-| SPORTSBOOK | SPORTSBOOK|
-| SPORTSBOOK | ESPORTS_BETTING|
-| PAYMENT_SERVICE_PROVIDER | MERCHANT_OF_RECORD|
-| PAYMENT_SERVICE_PROVIDER | PAYMENT_GATEWAY|
-| PAYMENT_SERVICE_PROVIDER | TECHNICAL_SERVICE_PROVIDER|
-| PAYMENT_SERVICE_PROVIDER | AGGREGATOR|
-| PAYMENT_SERVICE_PROVIDER | SHOP_MODULE_ECOMMERCE_PLATFORM|
-| PAYMENT_SERVICE_PROVIDER | PLATFORM_PROVIDER|
-| PAYMENT_SERVICE_PROVIDER | OTHER_PSP|
-| ADULT | ADULT_MEDIA|
-| ADULT | ADULT_ERETAIL|
-| ADULT | ADULT_CLASSIFIEDS|
-| ADULT | ADULT_DATING|
-| ADULT | ADULT_GAMES|
-| TRAVEL | TRAVEL_PORTAL|
-| TRAVEL | HOSPITALITY|
-| TRAVEL | MOBILITY_SERVICES|
-| TRAVEL | OTHER_TRAVEL|
-| UTILITIES | UTILITY_BILL_PAYMENT|
-| UTILITIES | UTILITY_PREPAID|
-| CRYPTO | CRYPTO_RESELLER|
-| CRYPTO | CRYPTO_EXCHANGE|
-| OTHER_INDUSTRIES | OTHER_INDUSTRIES|
-| OTHER_INDUSTRIES | REFERRAL_PARTNER|
-| OTHER_INDUSTRIES | EDUCATION|
-| OTHER_INDUSTRIES | GOVERNMENT|
-| OTHER_INDUSTRIES | REAL_ESTATE_HOUSING|
-| OTHER_INDUSTRIES | HEALTHCARE|
+| Channel | Subchannel (`type_of_business`) | MCC code (`mcc`) | MCC description |
+| ---  | ---                   | --- | --- |
+| ENTERTAINMENT | CLOUD_STORAGE_BACKUP_SERVICES | 7299 | FILEHOSTING |
+| ENTERTAINMENT | ROYALTY_FREE_IMAGES | 7299 | FILEHOSTING |
+| ENTERTAINMENT | SOFTWARE_DOWNLOAD | 5734 | SOFTWARE_DOWNLOAD |
+| ENTERTAINMENT | MEDIA_AUDIO_VIDEO | 5815 | MEDIA_AUDIO_VIDEO |
+| ENTERTAINMENT | TCOMMERCE | 7299 | FILEHOSTING |
+| ENTERTAINMENT | WEBHOSTING | 4816 | WEBHOSTING |
+| ENTERTAINMENT | DATING | 7311 | DATING |
+| ENTERTAINMENT | FORTUNE_TELLING_CONSULTING | 7996 | FORTUNE_TELLING_CONSULTING |
+| ENTERTAINMENT | SOCIAL_NETWORKS_PORTALS | 4816 | WEBHOSTING |
+| ENTERTAINMENT | MESSAGING_TELEPHONY | 4814 | MESSAGING_TELEPHONY |
+| ENTERTAINMENT | FILEHOSTING | 7299 | FILEHOSTING |
+| ENTERTAINMENT | TIPSTER | 7299 | FILEHOSTING |
+| ENTERTAINMENT | CLASSIFIEDS | 7311 | DATING |
+| ENTERTAINMENT | CHARITY | 8398 | CHARITY |
+| GAMES | ONLINE_GAMES | 5818 | ONLINE_GAMES |
+| GAMES | SKILL_GAMES | 7994 | SKILL_GAMES |
+| GAMES | FANTASY_SPORTS | 7994 | SKILL_GAMES |
+| GAMES | VIRTUAL_ITEMS | 5818 | ONLINE_GAMES |
+| GAMES | ESPORTS | 7995 | SPORTSBOOK |
+| GAMES | GAME_SERVER | 4816 | WEBHOSTING |
+| GAMES | GAMES_ERETAIL | 5818 | ONLINE_GAMES |
+| GAMES | STREAMING_GAMES | 7299 | FILEHOSTING |
+| GAMES | BOXED_VIDEO_GAMES_PHYS_COPIES | 5945 | BOARD_GAMES_TABLETOPS |
+| GAMES | GAMES_MERCHANDISE | 5945 | BOARD_GAMES_TABLETOPS |
+| GAMES | BOARD_GAMES_TABLETOPS | 5945 | BOARD_GAMES_TABLETOPS |
+| GAMES | GAMES_TICKETS | 7922 | GAMES_TICKETS |
+| GAMES | GAMES_HARDWARE | 5399 | CONSUMER_GOODS |
+| GAMES | COMIC_BOOKS_GAMES_LITERATURE | 5945 | BOARD_GAMES_TABLETOPS |
+| GAMES | TOYS | 5945 | BOARD_GAMES_TABLETOPS |
+| GAMES | SOCIAL_GAMBLING | 7994 | SKILL_GAMES |
+| ERETAIL | CONSUMER_GOODS | 5399 | CONSUMER_GOODS |
+| ERETAIL | AUCTIONS | 8999 | AUCTIONS |
+| ERETAIL | VOUCHERSHOP | 6012 | WALLETS |
+| ERETAIL | FASHION | 5691 | FASHION |
+| ERETAIL | ELECTRONICS | 5732 | ELECTRONICS |
+| ERETAIL | SPORTS_FITNESS | 5941 | SPORTS_FITNESS |
+| ERETAIL | HOME | 5712 | HOME |
+| ERETAIL | DIY_HOBBY | 5945 | BOARD_GAMES_TABLETOPS |
+| ERETAIL | PERSONAL_CARE | 5977 | PERSONAL_CARE |
+| ERETAIL | DRUGS_MEDICATION | 5912 | DRUGS_MEDICATION |
+| ERETAIL | LUXURY_GOODS | 5399 | CONSUMER_GOODS |
+| ERETAIL | DELIVERY_SERVICE | 4214 | DELIVERY_SERVICE |
+| ERETAIL | TICKETING_FOR_EVENTS | 7922 | GAMES_TICKETS |
+| ERETAIL | OTHER_ERETAIL | 5999 | OTHER_INDUSTRIES |
+| GIFTCARDS | GIFTCARDS | 6012 | WALLETS |
+| VOUCHERS | VOUCHERS | 6012 | WALLETS |
+| FINANCIAL_SERVICES | BINARY_OPTIONS_SPREAD_BETTING | 6211 | FOREX |
+| FINANCIAL_SERVICES | WALLETS | 6012 | WALLETS |
+| FINANCIAL_SERVICES | PREPAID_CARDS_TOPUPS | 6012 | WALLETS |
+| FINANCIAL_SERVICES | FOREX | 6211 | FOREX |
+| FINANCIAL_SERVICES | COLLECTION_SERVICE | 6012 | WALLETS |
+| FINANCIAL_SERVICES | ALTERNATIVE_BANKING | 6012 | WALLETS |
+| FINANCIAL_SERVICES | BANK_PAYSAFE_LICENSE | 6012 | WALLETS |
+| FINANCIAL_SERVICES | BANK_BANK_LICENSE | 6012 | WALLETS |
+| FINANCIAL_SERVICES | INSURANCE | 5960 | INSURANCE |
+| FINANCIAL_SERVICES | LOAN_PROVIDER | 6012 | WALLETS |
+| FINANCIAL_SERVICES | MONEY_REMITTANCE | 6012 | WALLETS |
+| POKER | POKER | 7995 | SPORTSBOOK |
+| POKER | LOTTERY | 7995 | SPORTSBOOK |
+| POKER | CASINO | 7995 | SPORTSBOOK |
+| POKER | BINGO | 7995 | SPORTSBOOK |
+| SPORTSBOOK | SPORTSBOOK | 7995 | SPORTSBOOK |
+| SPORTSBOOK | ESPORTS_BETTING | 7995 | SPORTSBOOK |
+| PAYMENT_SERVICE_PROVIDER | MERCHANT_OF_RECORD | 6012 | WALLETS |
+| PAYMENT_SERVICE_PROVIDER | PAYMENT_GATEWAY | 6012 | WALLETS |
+| PAYMENT_SERVICE_PROVIDER | TECHNICAL_SERVICE_PROVIDER | 6012 | WALLETS |
+| PAYMENT_SERVICE_PROVIDER | AGGREGATOR | 6012 | WALLETS |
+| PAYMENT_SERVICE_PROVIDER | SHOP_MODULE_ECOMMERCE_PLATFORM | 6012 | WALLETS |
+| PAYMENT_SERVICE_PROVIDER | PLATFORM_PROVIDER | 6012 | WALLETS |
+| PAYMENT_SERVICE_PROVIDER | OTHER_PSP | 6012 | WALLETS |
+| ADULT | ADULT_MEDIA | 5967 | ADULT_MEDIA |
+| ADULT | ADULT_ERETAIL | 5967 | ADULT_MEDIA |
+| ADULT | ADULT_CLASSIFIEDS | 5967 | ADULT_MEDIA |
+| ADULT | ADULT_DATING | 7273 | ADULT_DATING |
+| ADULT | ADULT_GAMES | 5967 | ADULT_MEDIA |
+| TRAVEL | TRAVEL_PORTAL | 4722 | OTHER_TRAVEL |
+| TRAVEL | HOSPITALITY | 4722 | OTHER_TRAVEL |
+| TRAVEL | MOBILITY_SERVICES | 4722 | OTHER_TRAVEL |
+| TRAVEL | OTHER_TRAVEL | 4722 | OTHER_TRAVEL |
+| UTILITIES | UTILITY_BILL_PAYMENT | 6012 | WALLETS |
+| UTILITIES | UTILITY_PREPAID | 6012 | WALLETS |
+| CRYPTO | CRYPTO_RESELLER | 6051 | CRYPTO_EXCHANGE |
+| CRYPTO | CRYPTO_EXCHANGE | 6051 | CRYPTO_EXCHANGE |
+| OTHER_INDUSTRIES | OTHER_INDUSTRIES | 5999 | OTHER_INDUSTRIES |
+| OTHER_INDUSTRIES | REFERRAL_PARTNER | 7311 | DATING |
+| OTHER_INDUSTRIES | EDUCATION | 8299 | EDUCATION |
+| OTHER_INDUSTRIES | GOVERNMENT | 9399 | GOVERNMENT |
+| OTHER_INDUSTRIES | REAL_ESTATE_HOUSING | 6513 | REAL_ESTATE_HOUSING |
+| OTHER_INDUSTRIES | HEALTHCARE | 8099 | HEALTHCARE
