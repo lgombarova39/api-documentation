@@ -73,7 +73,7 @@ The following section provides additional information about the API.
 
 ## API limits
 - A maximum of 50 RC can be requested in a single call
-- Max. 2 products per RC
+- Max. 5 products per RC
 - Max. 2 features per product
 
 <a name="rc_status"></a>
@@ -206,9 +206,9 @@ This section describes all parameters details of the [*request rc*](#request_rc)
 | `mcc`                         | string    | optional   | 7995                     | The RC MCC (merchant category code) (sub channel). <br></br> Either `type_of_business` OR `mcc` need to be supplied. <br></br> List of all possible values [here](#type_of_business).
 | `webshops`                    | array     | mandatory  | -                        | The webshop array contaning all the RC urls. <br></br> Max. 5 urls per RC.
 | `url`                         | string    | mandatory  | https://my.test.com      | The webshop url. <br></br> Max. 80 characters. <br></br> Must be a valid url including protocol (see example).
-| `products`                    | array     | mandatory  | -                        | The RC products and features array. <br></br> Max. 2 products per RC.
-| `name`                        | string    | mandatory  | PAYSAFECARD              | The RC product. <br></br> Max. 2 products per RC. <br></br> The possible values are: "PAYSAFECARD" and "PAYSAFECASH".
-| `features`                    | string    | optional   | PAYOUT                   | The RC feature. <br></br> Max. 2 features per product. <br></br> The possible values are: "PAYOUT" (only if the product is "PAYSAFECARD) and "REFUND".
+| `products`                    | array     | mandatory  | -                        | The RC products and features array. <br></br> Max. 5 products per RC.
+| `name`                        | string    | mandatory  | PAYSAFECARD              | The RC product. <br></br> Max. 5 products per RC. <br></br> The possible values are: "PAYSAFECARD", "PAYSAFECASH", "PAGOEFECTIVO", "SAFETYPAY" and "GIFTCARD".
+| `features`                    | string    | optional   | PAYOUT                   | The RC feature. <br></br> Max. 2 features per product. <br></br> The possible values are: "PAYOUT" (only if the product is "PAYSAFECARD) and "REFUND" (only if the product is "PAYSAFECARD" or "PAYSAFECASH").
 | `callback_url`                | string    | mandatory  | https://notification.com | The callback url to be used by paysafecard to inform about the RC status. <br></br> Max. 1000 characters. <br></br> Must be a valid url including protocol (see example).
 
 ## Response Parameters details
