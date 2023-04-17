@@ -108,6 +108,39 @@ There are alternative payment flows to integrate SafetyPay into your payment eco
 4. (Optional) Integrating the payment notification payload in JSON 
     * The [JSON payment notification](#payment_notification) enables the business partner to distinguish which payment instrument subtype was used for the transaction.
 
+# Group Customer Data Takeover
+Using the `customer_data_takeover` parameters in the payment creation, the merchant can pre-fill some data to improve the customer flow.
+- Adding the `email` field will skip the intermediate page SafetyPay shows before the customer can choose their bank. Please contact us if you want to send this field.
+- Adding the `tax_id` and `tax_id_type` fields will pre-fill the CFP field for transactions in Brazil
+
+Below, you can find an example with both fields for REST:
+
+```
+{
+  "type": "PAYSAFECARD",
+  "amount": 2000.00,
+  "currency": "BRL",
+  "redirect": {
+    "success_url": "https://www.paysafecard.com/okURL",
+    "failure_url": "https://www.paysafecard.com/nokURL"
+  },
+  "notification_url": "https://www.paysafecard.com/pnUrl",
+  "customer": {
+    "id": "customer_id2"
+  },
+  "shop_id":"test123",
+    "restrictions": {
+    "payment_instrument": "safetypay",
+    "payment_instrument_subtype": "online",
+    "bank_ids": ["8439","8382"]
+  },
+  "customer_data_takeover": {
+    "email": "test@test.com",
+    "tax_id": "taxID1234",
+    "tax_id_type": "BRA_CFP"
+  }
+}
+```
 
 # Group Initiating a SafetyPay Payment - REST
 
@@ -121,8 +154,8 @@ at the merchant's checkout. When choosing the `payment_instrument`, the customer
 | ---                           | ---                        | ---              | ---                  
 | `restrictions`                | Array                      | The payment restrictions array.
 | `payment_instrument`          | String                     | The payment instrument gives the possibility to initiate the payment for the specific option chosen at the merchant's checkout page. |`paysafecard`, `safetypay`
-| `payment_instrument_subtype`          | String             | The payment instrument subtype gives the possibility to initiate the payment for the specific option chosen at the merchant's checkout page. |`cash`,`online`
-| `bank_ids`                    | Numerical Array            | The bank ID restriction gives the possibility to only show certain bank options. It is an array that allows multiple options.    | A list of bank IDs can be found at the bottom under ["Bank IDs"](#bank_ids)
+| `payment_instrument_subtype`  | String                     | The payment instrument subtype gives the possibility to initiate the payment for the specific option chosen at the merchant's checkout page. |`cash`,`online`
+| `bank_ids`                    | Numerical Array            | The bank ID restriction gives the possibility to only show certain bank options. It is an array that allows multiple options. Only 74 characters can be sent (14 bank IDs).   | A list of bank IDs can be found at the bottom under ["Bank IDs"](#bank_ids)
 
 ### Initiate Payment Example
 
@@ -600,22 +633,19 @@ Sending this parameter without "payment_instrument" does not limit the customer 
 
 |Payment Instrument Subtype | Country | Bank ID | Bank Name | Bank Provider Name
 | --- | --- | --- | --- | ---
-| online | BR | 8366 | Banco Itau Boleto | Banco Itau Boleto
+| online | BR | 8366 | Banco Itau Boleto | Banco Itau Boleto (also called "Itau Unibanco")
+| cash   | BR | 8366 | Banco Itau Boleto | Banco Itau Boleto (also called "Itau Unibanco")
 | online | BR | 4081 | Banco Itau Robot | Banco Itau
 | online | BR | 8183 | Banco do Brasil Robot | Banco do Brasil
 | online | BR | 8183 | Banco do Brasil SafetyPay | Banco do Brasil
-| online | BR | 8339 | Banco do Brasil Web Service | Banco do Brasil WS
-| online | BR | 1022 | Banrisul | Banrisul
 | online | BR | 8326 | Bradesco PagFacil | Bradesco Pagfacil
-| online | BR | 8210 | Bradesco Robot | Bradesco
-| online | BR | 8210 | Bradesco SafetyPay | Bradesco
+| cash   | BR | 8326 | Bradesco PagFacil | Bradesco Pagfacil
 | cash   | BR | 8176 | Caixa Econômica Federal | Caixa Econômica Federal
 | online | BR | 8439 | PIX | Bradesco PIX
 | online | BR | 8042 | Santander Brasil | Santander Brasil
 | online | CL | 8296 | Banco BCI One Step | Banco BCI
+| cash   | CL | 8194 | Banco Estado | Banco Estado Recaudo Referenciado
 | online | CL | 8194 | Banco Estado | Banco Estado Recaudo Referenciado
-| cash   | CL | 8194 | Banco Estado | Banco Estado Recaudo Referenciado
-| cash   | CL | 8194 | Banco Estado | Banco Estado Recaudo Referenciado
 | online | CL | 8291 | Banco Estado One Step | Banco Estado Boton de Pago
 | online | CL | 8488 | Khipu | Khipu
 | online | CL | 8493 | Khipu - BCI | Khipu
@@ -626,10 +656,8 @@ Sending this parameter without "payment_instrument" does not limit the customer 
 | online | CL | 8416 | MachPay | Machpay BCI
 | online | CL | 8457 | Scotiabank Chile | Scotiabank Chile
 | cash   | CL | 8198 | Walmart Chile | Walmart Chile
-| cash   | CL | 8198 | Walmart Chile | Walmart Chile
-| cash   | CL | 8198 | Walmart Chile | Walmart Chile
-| cash   | CL | 8198 | Walmart Chile | Walmart Chile
-| online | CO | 8185 | Banco Agrario | Banco de Occidente COL
+| cash   | CO | 8463 | Acciones y Valores | Acciones y Valores
+| cash   | CO | 8157 | Baloto | Payvalida
 | online | CO | 8503 | COOFINEP | Banco de Occidente COL
 | cash   | CO | 8224 | Efecty | Efecty
 | cash   | CO | 8231 | MovilRed Colombia | MovilRed Colombia
@@ -661,136 +689,81 @@ Sending this parameter without "payment_instrument" does not limit the customer 
 | online | CO | 4092 | PSE - Itau Corpbanca Colombia S.A. | Banco de Occidente COL
 | online | CO | 8474 | PSE - MOVII S.A. | Banco de Occidente COL
 | online | CO | 8276 | PSE - Nequi | Banco de Occidente COL
+| online | CO | 8397 | PSE - RappiPay COL | Banco de Occidente COL
 | online | CO | 8332 | PSE - Santander COL | Banco de Occidente COL
-| online | CO | 8397 | PSE – RappiPay COL | Banco de Occidente COL
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | Sured
-| cash   | CO | 8323 | SuRed | SuRed
 | cash   | CO | 8323 | SuRed | Sured
 | online | CR | 1021 | Banco Nacional de Costa Rica | Banco Nacional de Costa Rica
+| cash   | CR | 1021 | Banco Nacional de Costa Rica | Banco Nacional de Costa Rica
+| cash   | CR | 8531 | Paycash Costa Rica | Paycash Costa Rica
 | cash   | EC | 8216 | Banco Guayaquil | Banco Guayaquil
 | online | EC | 8216 | Banco Guayaquil | Banco Guayaquil
-| cash   | EC | 8066 | Banco Pichincha ECU | Banco Pichincha ECU
 | online | EC | 8066 | Banco Pichincha ECU | Banco Pichincha ECU
-| cash   | EC | 8458 | Facilito | Facilito
-| cash   | EC | 8458 | Facilito | Facilito
-| cash   | EC | 8458 | Facilito | Facilito
-| cash   | EC | 8458 | Facilito | Facilito
+| cash   | EC | 8066 | Banco Pichincha ECU | Banco Pichincha ECU
 | cash   | EC | 8458 | Facilito | Facilito
 | cash   | EC | 8401 | Red Activa | Red Activa
-| cash   | EC | 8401 | Red Activa | Red Activa
-| cash   | EC | 8401 | Red Activa | Red Activa
-| cash   | EC | 8401 | Red Activa | Red Activa
 | cash   | GT | 8404 | PuntoXpress GTM | Punto Xpress GTM
-| cash   | GT | 8404 | PuntoXpress GTM | Punto Xpress GTM
-| cash   | GT | 8404 | PuntoXpress GTM | Punto Xpress GTM
-| cash   | GT | 8404 | PuntoXpress GTM | Punto Xpress GTM
-| cash   | GT | 8404 | PuntoXpress GTM | Punto Xpress GTM
-| online | MX | 8425 | Afirme PayCash | Paycash
-| online | MX | 1020 | BBVA Bancomer | BBVA Bancomer
+| cash   | MX | 8425 | Afirme PayCash | Paycash  
+| online | MX | 8425 | Afirme PayCash | Paycash  
 | cash   | MX | 1020 | BBVA Bancomer | BBVA Bancomer
+| online | MX | 1020 | BBVA Bancomer | BBVA Bancomer
 | cash   | MX | 8186 | Banco Azteca | Banco Azteca
 | cash   | MX | 1026 | Banorte | Banorte
+| cash   | MX | 1052 | HSBC Mexico | HSBC Mexico
 | online | MX | 1052 | HSBC Mexico | HSBC Mexico
 | cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8178 | OpenPay | OpenPay
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
-| cash   | MX | 8419 | PayCash | Paycash
+| cash   | MX | 8419 | PayCash | Paycash  
 | online | MX | 8191 | SPEI MX | OpenPay Online
-| online | MX | 8400 | SPEI ROBOT | OpenPay
-| online | MX | 9999 | Santander MEX | Santander
+| cash   | MX | 8395 | Santander MEX WS | Banco Santander
 | online | MX | 8395 | Santander MEX WS | Banco Santander
 | online | MX | 1007 | Scotiabank Mexico | Scotiabank Mexico
+| cash   | MX | 1007 | Scotiabank Mexico | Scotiabank Mexico
 | cash   | PA | 8188 | Western Union Panama | Western Union Panama
 | cash   | PE | 8443 | Agente Niubiz | Niubiz
 | cash   | PE | 8321 | Agentes Kasnet | Western Union
 | online | PE | 1001 | BBVA Continental | BBVA Continental
+| cash   | PE | 1001 | BBVA Continental | BBVA Continental
 | online | PE | 8391 | BCP Cuotéalo | Banco de Crédito Cuotealo
 | online | PE | 8441 | Banco Pichincha PER | Pichincha PER
+| cash   | PE | 8441 | Banco Pichincha PER | Pichincha PER
+| cash   | PE | 1005 | Banco de Crédito | Banco de Crédito
 | online | PE | 1005 | Banco de Crédito | Banco de Crédito
 | online | PE | 8324 | Caja Arequipa | Caja Arequipa
+| cash   | PE | 8324 | Caja Arequipa | Caja Arequipa
+| cash   | PE | 8250 | Caja Huancayo | Caja Huancayo
 | online | PE | 8250 | Caja Huancayo | Caja Huancayo
 | online | PE | 1024 | Caja Tacna | Caja Tacna
+| cash   | PE | 1024 | Caja Tacna | Caja Tacna
 | online | PE | 1025 | Caja Trujillo | Caja Trujillo
+| cash   | PE | 1025 | Caja Trujillo | Caja Trujillo
 | cash   | PE | 8442 | Globokas - Kasnet | Globokas - Kasnet
+| cash   | PE | 1011 | Interbank | Interbank
 | online | PE | 1011 | Interbank | Interbank
+| online | PE | 8502 | PagoEfectivo QR | PagoEfectivo QR
 | cash   | PE | 8444 | Red Digital | Red Digital
 | online | PE | 1006 | Scotiabank Peru | Scotiabank Peru
-| cash   | PE | 8440 | Tambo+ | Tambo
+| cash   | PE | 1006 | Scotiabank Peru | Scotiabank Peru
+| cash   | PE | 8440 | Tambo+ | Tambo 
 | cash   | PE | 8320 | Western Union | Western Union
 | cash   | PE | 8320 | Western Union | Western Union
 | cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
-| cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
+
+####Bank ID Updates:
+#####2023-04-17
+Added "Paycash Costa Rica" 8531 (CR)
+
+#####2022-09-28
+Added "PagoEfectivo QR" 8502 (PE)
+
+#####2022-09-28
+Removed "Bradesco Robot" / "Bradesco Safetypay" 8210 (BR)
+
+#####2022-09-28
+Added "Acciones y Valores" 8463 (CO)
+
+#####2022-09-07
+Removed "Banco do Brasil Web Service" 8339 (BR)
+
+Removed "Banrisul" 1022 (BR)
 
 
 
