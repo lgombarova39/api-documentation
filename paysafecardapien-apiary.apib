@@ -171,8 +171,8 @@ Basically, the language and locale of the payment panel are determined by follow
 Therefore, it is not necessary to send a locale parameter for the customer.
 
 # paysafecard brand guidelines and logos
-The paysafecard integration must be done accordingly to the [*brand guidelines*](https://www.paysafecard.com/fileadmin/Website/Dokumente/B2B/2018-paysafecard-brand-guidelines-partners.pdf).
-<br><br>
+The paysafecard integration must be done accordingly to the brand guidelines outlined in the [*Partner Marketing Center*](https://marketingcenter.paysafe.com/login/). Once one there a business partner will need to register a new account. For further assistance the business partner can contact an account manager.
+
 
 The *svg* paysafecard logos can be accessed via the following endpoints:
 - During the test phase: *https://customer.test.at.paysafecard.com/rest/payment/logo.svg?mid=MID&submerchant_id=SUBMERCHANT_ID&country=COUNTRY*
@@ -356,7 +356,7 @@ A JSON version with all the possible parameters, is also available. Example body
 | `payment_id`                  | String                     | The paysafecard transaction ID. Unique identifier for a payment.
 | `payment_instrument`          | String                     | The payment method used. <br><br> Possible values: `paysafecard`; `paysafecash`, `giftcard`, `pagoefectivo` or `safetypay` <br>*Contact paysafecard if you want this parameter*
 | `payment_instrument_subtype`  | String                     | The type of giftcard used. <br><br> Possible values: `cvspharmacy`, `dollargeneral`, `openbuckscard`, `cash` or `online` <br>*Contact paysafecard if you want this paramater*
-| `bank_ids`                    | Array                      | The type bank used for SafetyPay <br><br> Possible values: See [*here*](https://www.paysafecard.com/fileadmin/api/paysafecardsafetypay.html#/reference/bank-ids) <br>*Contact paysafecard if you want this paramater*
+| `bank_id`                     | String                     | The type bank used for SafetyPay <br><br> Possible values: See [*here*](https://www.paysafecard.com/fileadmin/api/paysafecardsafetypay.html#/reference/bank-ids) <br>*Contact paysafecard if you want this paramater*
 | `card_details`                | Array                      | Contains the details of the card used for the transaction (up to 10 iterations - max. number of cards that can be used in a single transaction) with the card information.
 | `serial`                      | String                     | The serial number that identifies the card.
 | `currency`                    | String                     | The currency code of the card in ISO 4217 3-digit format.
@@ -852,7 +852,7 @@ sends its business partners.
 
 # Group Refund API Calls
 
-##  [/payments/{id}/refunds]
+## Refunds [/payments/{id}/refunds]
 
 ```
 POST /payments/{id}/refunds
