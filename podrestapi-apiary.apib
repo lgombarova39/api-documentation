@@ -95,6 +95,15 @@ Once the integration is finished, a UAT(User Acceptance Test) needs to be done i
 - The endpoint for the *test environment* is: https://distributor.test.paysafecard.com/v1/
 - The endpoint for the *production environment* is: https://distributor.paysafecard.com/v1/
 
+## Health check endpoint
+
+To test the stability and health of the endpoints in both the test  and production environments the business partner can issue an empty POST request to the following:
+- For the *test environment*: https://distributor.test.paysafecard.com/v1/orders/ping
+- For the *production environment*: https://distributor.paysafecard.com/v1/orders/ping
+
+The expected response (HTTP 200 + JSON): { "success": "true" }
+
+
 ## HTTP status codes
 | Code | Short Description     | Description |
 | ---  | ---                   | ---         |
@@ -128,7 +137,7 @@ Each paysafecard printed voucher (via the POS terminal) must contain the followi
 |---                |---                                                                 
 |PIN-CODE           |The unique code used by the customer to pay at web shops.<br/><br/> 16 digits, numeric (preferably in 4 x 4 blocks).    
 |SERIAL NUMBER      |The unique idenfication number used for card holder inquiries.<br/><br/> 16 digits, numeric (leading zeros may be cut).
-|CARD TYPE          |The product identifier. For Pin-on-Deman the value: "classic" must be printed.
+|CARD TYPE          |(optional) The product identifier. For Pin-on-Demand the value: "classic" should be printed.
 |FACE VALUE         |The face value of PIN sold(e.g. 10.00, 25.00, 50.00, 100.00, etc).
 |CURRENCY           |The currency of the PIN sold (e.g. EUR, GBP, USD, PLN, etc).
 |PRINT DATE         |Date and time-stamp of the voucher print-out at the POS (e.g. YYYY:MM:DD - HH:MM:SS).
@@ -374,7 +383,10 @@ Below, all possible error codes for the Pin-on-Demand REST API are listed with t
 |`product_not_allowed`              |3105 |Product not allowed
 |`credit_limit_reached`             |3144 |Credit limit reached
 |`invalid_currency_distributor`     |3151 |Invalid currency
+|`invalid_card_type`                |3153 |Invalid card type
 |`cancel_order_already_processed`   |3154 |Cancel order already processed
+|`terminal_blocked`                 |3155 |Terminal is blocked
+|`order_state_not_valid_for_cancellation`                 |3156 |Order is in a state where it cannot be cancelled
 |`cancel_order_too_late`            |3158 |Cancel order too late
 |`terminal_limit_1_exceeded`        |3174 |Terminal limit 1 exceeded
 |`terminal_limit_2_exceeded`        |3175 |Terminal limit 2 exceeded
@@ -546,6 +558,126 @@ The recommended setting is 5 minutes, as most fraudulent card sale activities ar
 
 If the temporary card locking is enabled, the business partner must add an extra text printed on the voucher, explaining that it takes some time before the customer can use the PIN.
 
+# Group Shop Registration
+
+Due to regulatory reasons, we are required to provide acurate information where the Paysafe product sale is taking place. To achieve it, following information needs to be known:
+- **distributor** - provides the terminal infrastructure
+- **shop** - location where the terminal is operated and the customer buys the Paysafe product
+- **terminal** - device used to sell Paysafe product
+- **products** - Paysafe products sold at the shop
+
+Up to now, there have been exceptions allowing orders go through although the provided information was not complete, however due to the tightening of the regulations, such orders will be rejected.
+<br><br>
+Besides adhering to the regulations, such information benefits all parties offering a more accurate representation of the distributor network. Shops are displayed correctly in Storelocator, customers will be directed to the
+appropriate shop based on the provided information, more information supporting fraud issues.
+<br><br>
+To assure the highest correctness of such information, Paysafe is offering the possibility that distributors provide such details through **Shop Registration** process. This information can be provide via three different files.
+- Shop Information file
+- Terminal Information file
+- Product Information file
+
+Shop Information file includes following columns:
+```
+Shop ID*, 
+Shop Name*, 
+Address*, 
+City*, 
+Zip Code*, 
+Country*, 
+Company Name, 
+Registration Number, 
+Country of Incorporation, 
+Year of Incorporation, 
+Main Contact Name, 
+Main Contact Phone, 
+Main Contact Address, 
+Main Contact Email, 
+Email Address, 
+Phone Number, 
+Longitude, 
+Latitude, 
+Filename Logo, 
+Opening Hours, 
+Time Location, 
+Type of Business, 
+Retailer ID, 
+Main Contact Position, 
+Person 1 Name, 
+Person 1 Function, 
+Person 1 Address, 
+Person 1 Birthdate, 
+Person 1 Birthplace, 
+Person 2 Name, 
+Person 2 Function, 
+Person 2 Address, 
+Person 2 Birthdate, 
+Person 2 Birthplace, 
+Person 3 Name, 
+Person 3 Function, 
+Person 3 Address, 
+Person 3 Birthdate, 
+Person 3 Birthplace, 
+Person 4 Name, 
+Person 4 Function, 
+Person 4 Address, 
+Person 4 Birthdate, 
+Person 4 Birthplace
+```
+
+Value for **Country** parameter needs to be provided in the form of the two letter country code (**ISO 3166-1 alpha-2**), i.e. for **Germany**
+it should be **DE**.
+
+`Note: If you do not want to provide values for the optional parameters, you must also exclude the column headers for those parameters.
+Another option is to provide the column headers, but you need to provide empty fields separated by comma.`
+
+Terminal Information file includes the following columns:
+```
+Shop ID*, 
+Terminal ID*
+```
+
+Product Information file includes the following columns:
+```
+Shop ID*, 
+Product ID*
+```
+`* - indicates mandatory parameter`
+
+
+## File Naming Convention
+
+Expected file type is **CSV** and the maximum file size is 10MB and the first line of the file must contain the column names.
+
+Format of the file name is **DID_Information-Type.csv**. Information-Type can be Shop, Terminal, Product - depending on what information you want to provide. i.e. DID 000909999 uploading files to provide information, the file name would be:
+- 000909999_Shop.csv
+- 000909999_Terminal.csv
+- 000909999_Product.csv
+
+`It is important to write the full DID in the file name, including the leading zeros.`
+
+## Instructions for file upload
+
+These files can be provided by the distributors via two different channels, namely **SFTP Upload** and **Distribution Service Center (DSC) Upload**
+
+
+
+## SFTP Upload
+
+To provide the file via SFTP upload, drop the information file under the folder shopfiles of the SFTP user for the respective DID. i.e. DID 000909999
+
+- SFTP Server: sftp.paysafecard.com
+- Port: 22
+- Username: 000909999
+- Path: /home/000909999/shopfiles
+
+This channel can process machine to machine communication and can be fully automated.  
+
+## DSC Upload
+
+Login at https://servicecenter.paysafecard.com/ with the acquired credentials during the onboarding process and navigate to the **Shop Registration** menu. There you will see three upload options, Shop, Terminal and Product.
+
+This channel provides a great user interface and guidance throughout the registration process.
+
 # Group Reconciliation / Sales Reporting 
 By default on a daily basis the, the business partner will receive a detailed sales report (in csv), containing all orders of last day. Orders successfully executed as well as cancelled orders will be included in the reconciliation file.
 
@@ -639,13 +771,12 @@ This can be done to either make a direct top-up to the customer’s account, or 
 5. paysafecard performs validation checks and a valid response is returned (the status of the order is **DELIVERED**)
     * 5.1 For direct top-up, this includes the customer’s credit limit, terminal limits, account status and fiscal code
     * 5.2 For a normal PIN request, this only includes the fiscal code
-6. The cooldown period (5 minutes) starts, and the card is temporarily locked for this period
-7. The voucher is printed by the business partner system containing the serial number, product, face value, currency, date, terminal ID and the T & C’s and handed out to the customer
-    * 7.1 For a PIN sale, the PIN is printed normally
-    * 7.2 For a direct top-up, no PIN is printed
-8. (**Optional**) A cancellation can be made via the `cancel order` request during the cooldown period (the status of the order is **CANCELLED**)
-9. paysafecard performs validation checks (order status, order id, date) and a valid response is returned
-10. A cancellation receipt is printed by the business partner system and handed out to the customer
+6. The voucher is printed by the business partner system containing the serial number, product, face value, currency, date, terminal ID and the T & C’s and handed out to the customer
+    * 6.1 For a PIN sale, the PIN is printed normally
+    * 6.2 For a direct top-up, no PIN is printed
+7. (**Optional**) A cancellation can be made via the `cancel order` request during the cooldown period (the status of the order is **CANCELLED**)
+8. paysafecard performs validation checks (order status, order id, date) and a valid response is returned
+9. A cancellation receipt is printed by the business partner system and handed out to the customer
 
 **Note**: If the amount is loaded directly into the customer my paysafecard account, the implementation of `cancel order` 
 at the POS is mandatory to avoid possible fraud cases.
