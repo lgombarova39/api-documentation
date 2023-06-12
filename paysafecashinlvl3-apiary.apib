@@ -479,6 +479,9 @@ DELETE /payments/id/
 |`general_error`                                                            |3017               |400            |It is mandatory to send an MCID.|
 |`general_error`                                                            |3019               |400            |MCID contains invalid values.|
 |`merchant_client_limit_reached`                                            |33005              |400            |Merchant client limit reached|
+|`missing_mandatory_parameter`                                              |3150               |400            |(KYC reliance) A mandatory parameter is missing.|
+|`action_not_allowed`                                                       |3161               |400            |(KYC reliance) Customer data did not pass sanction check.|
+
 
 
 Other errors can be communicated to the customer as “general technical error”. 
@@ -502,7 +505,44 @@ In case of technical errors (e.g. socket timeout) or application errors, the web
 
 | IP addresses  |
 |---|
-|  3.127.106.50 <br>3.126.164.128 <br>3.127.123.143 <br>176.34.172.250 <br>54.228.173.185 |
+|  3.127.106.50 |
+|3.126.164.128 |
+|3.127.123.143 |
+|176.34.172.250 |
+|54.228.173.185 |
+
+# Group Additional webhook notification for money handover
+If requested, Paysafe can activate an additional webhook notification which is sent as soon as the customer paid at the store.
+
+This webhook notification uses the `eventType` "MONEY_HANDOVER".
+
+<b>Important</b>: this is not yet a confirmation that the transaction was successful, but you can update the transaction status to "processing" or "pending" on your end.
+
+We expect you to credit the customer only when you receive the webhook notification with the event type "PAYMENT_CAPTURED".
+
+- This notification uses the same IP addresses as the normal webhook notification.
+- It uses the same type of verification - see the chapter below.
+- This notification needs to be enabled on our side, so you need to request it from paysafecard.
+- The notification will be sent between 0-30 seconds after the customer paid.
+- It will be sent to the same URL as the normal webhook notification - the one specified in the payment request.
+- The transaction status will <b>NOT</b> be updated, so you cannot confirm this with a `retrievePayment` request.
+- In case the notification fails to get delivered, we attempt up to 5 retries.
+    - This means you could receive a "MONEY_HANDOVER" notification after the transaction was already successful. In these cases, please confirm the transaction status with a `retrievePayment`.
+<!-- - It does not make any retry attempts in case the initial notification fails. -->
+
+
+HTTP body
+```http
+    {
+      "timestamp": 1686560013991,
+      "eventType": "MONEY_HANDOVER",
+      "version": "1",
+      "data": {
+        "mid": "1000000433",
+        "mtid": "mdirectload_1686560012113_hq13zzbV7z_EUR"
+      }
+    }
+```
 
 # Group How to verifiy the webhook notification
 The webhook notification is signed with "rsa-sha256" and the signature can be found in the HTTP "Authorization" header.
@@ -536,7 +576,7 @@ HTTP body
 |Parameter                  |Description    |
 |---                        |---                                                                 |
 |`timestamp`                |The Unix timestamp of the payment.    |
-|`eventType`                |The event that triggered the webhook notification. There are only two event types: "PAYMENT_CAPTURED" or "PAYMENT_EXPIRED" |
+|`eventType`                |The event that triggered the webhook notification. There are only three event types: "PAYMENT_CAPTURED", "PAYMENT_EXPIRED" and "MONEY_HANDOVER"|
 |`version`                  |The signature key version.|
 |`mid`                      |The Merchant ID and/or Sub-merchant ID provided for the allocation of the payment. |
 |`mtid`                     |The payment ID.|
@@ -602,6 +642,18 @@ Using the "Customer Data Takeover" feature, the business partner sends customer 
 + If a middle name is to be sent during the data exchange, the business partner must combine the customer middle name with the `first_name` parameter.
 
 + It is crucial that the international calling code of the phone number and the country is matching. Otherwise, the number is dropped and not prefilled in the registration form.
+
+# Group KYC reliance
+If you have already verified the customer, we can process this KYC data via API request to make necessary checks on our end during the transaction creation.
+
+To use this feature, the Customer Data Takeover parameters (see above) and additional KYC reliance parameters are mandatory - please see the `initiate payment` API call for details. These parameters need to be send in the "customer_takeover_data" -> "document" object.
+
+The additional parameters include the document ID, document type, document date of issuance and expiry, document issuing authority and tax ID.
+
+- If the checks on our end fail, we will return the error code 3161 ("action_not_allowed").
+- Since the Customer Data Takeover is mandatory for this feature, we will return the error code 3150 ("missing_mandatory_parameter") in case one of the parameters is missing.
+- If the KYC data is invalid, we will return the error code 10028 ("invalid_request_parameter")
+- If the customer reached their limit, we will return the error code 33005 ("merchant_client_limit_reached")
 
 # Group Refund Information
 The refund feature provides the business partners the possibility to fully or partially refund a previously paid transaction back into the
@@ -720,7 +772,7 @@ For live accounts, techsupport@paysafecard.com should be contacted.
 + shop_id: `shop1` (optional) - Identification of the shop which is the originator of the request. This is most likely used by payment service providers who act as a proxy for other payment methods as well.
 + `expiration_time_minutes`: 4320 (optional) - The time frame the customer is given to go to a payment point and pay for the transaction, in minutes. For further details, please see ["Variable Transaction Timeout"](#variable_trx_timeout).
 + `customer_takeover_data` (object)
-    + `first_name`: `Max`
+    + `first_name`: `Max` 
     + `last_name`: `Mustermann`
     + `date_of_birth`: `1990-12-31`
     + `address1`: `Musterstrasse 2`
@@ -729,6 +781,16 @@ For live accounts, techsupport@paysafecard.com should be contacted.
     + `country_iso2`: `AT`
     + `phone_number`: `+43676123456789`
     + `email`: `example@test.at`
+    + `document` (object) - KYC reliance: mandatory
+        + `id_number` : `8010369012345` - KYC reliance: mandatory
+        + `type` : `PASSPORT` - KYC reliance: mandatory
+        + `issuing_authority` : `Passport Service Paris` - KYC reliance: mandatory if available
+        + `date_of_issuance` : `2010-12-31` - KYC reliance: mandatory if available
+        + `date_of_expiry` : `2030-12-31` - KYC reliance: mandatory
+    + `kyc_level` : `FULL` - KYC reliance: mandatory
+    + `tax_id` : `1NTEST01SGxo9HZ` - KYC reliance: mandatory if available
+    + `place_of_birth` : `Versaille` - KYC reliance: optional
+    + `ip_address` : `127.0.0.1` - KYC reliance: optional
 
 ## PaymentResponse (TypedObject)
 + id: pay_1090001806_7k9XywR0fAbd9FADzAFBsVCabjUAPh96_EUR - The unique id of this payment
