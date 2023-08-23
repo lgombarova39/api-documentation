@@ -154,7 +154,7 @@ This section describes in detail the technical process of a Paysafecash payment.
     * 4.1. If the customer cancels the transaction on the barcode application (status of the transaction is "CANCELED_CUSTOMER"), show the following error message on the `failure_url`:
         
         *"Transaction aborted by the user."*
-    * 4.2. If the customer clicks on "Continue Shopping", the customer will be redirected to the specified `success_url`. Empty the shopping basket, send a `retrieve payment details` request and show an according message to the customer:
+    * 4.2. If the customer clicks on “Back to [Merchant Name]”, the customer will be redirected to the specified `success_url`. Empty the shopping basket, send a `retrieve payment details` request and show an according message to the customer:
         
         * 4.2.1. If the transaction is in status "REDIRECTED":
         
@@ -281,7 +281,7 @@ POST /payments/
 
 If the integration type in use is **"Barcode Application Integration"**, the next step is to redirect the customer to the `auth_url`, which is returned as part of the response.
 
-As soon as the customer has clicked on "Continue Shopping" in the barcode application (status of the transaction is `REDIRECTED`) or authorized the payment at a payment point (status of the transaction is `AUTHORIZED`),
+As soon as the customer has clicked on “Back to [Merchant Name]” in the barcode application (status of the transaction is `REDIRECTED`) or authorized the payment at a payment point (status of the transaction is `AUTHORIZED`),
 the customer will be redirected to the `success_url` specified when creating the payment.
 
 + Parameters
@@ -420,11 +420,11 @@ The webhook notification is signed with "rsa-sha256" and the signature can be fo
 HTTP headers
 ```http
 Content-Type: application/json
-Authorization: keyId="1",algorithm="rsa-sha256",signature="OFPVO1uqac0U18LlEedwfdYaIPuuCIsvSxuDRV+nsU33F2TVYapR/JHR0mvJSAZUJWUTJk60PZXPhGF9eQLeIidxX1yJg8JA0pC0/CAt7JbiF39KsjMYMkCPp51q84s1RqAa23D2sljJuvPQYiDJLPlZ7PRSxYaIfmJ6MWzRq4Ku4XVi6OpqgAkO5V205UsDBmp8mxc00w1Eu5yAPoUjelZfxqHl/G2D0e5hWPuggtx/3hx2szFQDJzfHdRBhrlSqcU2WGzByXhy6A6FzeOQVysQNAR1/i+ztlhfCotY11Usb+Uh4yUVwi/I0pbKL+UJZ2VZlI6++SAO7CoQVkBAiw=="
+Authorization: keyId="2",algorithm="rsa-sha256",signature="OFPVO1uqac0U18LlEedwfdYaIPuuCIsvSxuDRV+nsU33F2TVYapR/JHR0mvJSAZUJWUTJk60PZXPhGF9eQLeIidxX1yJg8JA0pC0/CAt7JbiF39KsjMYMkCPp51q84s1RqAa23D2sljJuvPQYiDJLPlZ7PRSxYaIfmJ6MWzRq4Ku4XVi6OpqgAkO5V205UsDBmp8mxc00w1Eu5yAPoUjelZfxqHl/G2D0e5hWPuggtx/3hx2szFQDJzfHdRBhrlSqcU2WGzByXhy6A6FzeOQVysQNAR1/i+ztlhfCotY11Usb+Uh4yUVwi/I0pbKL+UJZ2VZlI6++SAO7CoQVkBAiw=="
 ```
 |Parameter                  |Description    |
 |---                        |---                                                                 |
-|`keyId`                    |The signature key version id. It has always the value "1" except if communicated otherwise by the paysafecard integration team.    |
+|`keyId`                    |The signature key version id. It currently has the value "2" except if communicated otherwise by the paysafecard integration team.    |
 |`algorithm`                |The algorithm used for the signature. A Paysafecash webhook notification will always be signed with "rsa-sha256".|
 |`signature`                |The signature of the webhook notification.|
 
@@ -434,7 +434,7 @@ HTTP body
 {
     "timestamp":1539920400647,
     "eventType":"PAYMENT_CAPTURED",
-    "version":"1",
+    "version":"2",
     "data": {
         "mid":"1000000312",
         "mtid":"pay_1000000312_kvQwaSARVDlZm2yxRVNaCYZObI5Xcd40_EUR"
@@ -450,22 +450,46 @@ HTTP body
 |`mid`                      |The Merchant ID and/or Sub-merchant ID provided for the allocation of the payment. |
 |`mtid`                     |The payment ID.|
 
-In the near future, we will add the option to enable additional parameters which identify the location where the barcode was paid for.
+We also have the option to enable additional parameters which identify the location where the barcode was paid for.
 If you wish to receive this information, please make sure you also accept additional parameters in the webhook notification, and contact us.
 
 |Parameter                  |Description    |
 |---                        |---                                                                 |
-|`(to be defined)`          |(optional) Distributor ID & external Shop ID     |
-|`(to be defined)`          |(optional) Distributor name     |
-|`(to be defined)`          |(optional) Store name     |
-|`(to be defined)`          |(optional) Address     |
-|`(to be defined)`          |(optional) ZIP code     |
-|`(to be defined)`          |(optional) City     |
-|`(to be defined)`          |(optional) Country Code (ISO2)     |
-|`(to be defined)`          |(optional) Coordinate X    |
-|`(to be defined)`          |(optional) Coordinate Y    |
+|`point_of_sale`            | Array of the parameters below     |
+|`store_number`             | Distributor ID & external Shop ID     |
+|`title`                    | Store name     |
+|`street_and_no`            | Address     |
+|`zipcode`                  | ZIP code     |
+|`city`                     | City     |
+|`countrycode`              | Country Code (ISO2)     |
+|`lat`                      | Coordinate X    |
+|`lng`                      | Coordinate Y    |
+
+Example of a webhook body / payload with the additional data:
+
+```
+{
+  "timestamp": 1652669343852,
+  "eventType": "PAYMENT_CAPTURED",
+  "version": "2",
+  "data": {
+    "mid": "1000000312",
+    "mtid": "pay_1000000312_Sch1WLDKoMlTxwe2xrKHr9LIxTLWQW2g_EUR",
+    "point_of_sale": {
+      "countrycode": "BG",
+      "store_number": "35513746_Test_POSDMWN",
+      "title": "test posdmwn feature",
+      "street_and_no": "centre",
+      "zipcode": "1700",
+      "city": "Sofia",
+      "lat": 23.324155,
+      "lng": 42.697562
+    }
+  }
+}
 
 
+```
 
 
 <br><br>
