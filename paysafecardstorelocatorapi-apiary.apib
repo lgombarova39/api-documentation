@@ -21,7 +21,7 @@ It also facilitates solid and universally accepted foundations like [*http basic
 
 ## Versioning
 Every time there is backwards-incompatible change to the API, a new major version will be released. This major version is part of the URL path.
-The current major version is *v1*. Unless informed by our technical support department that we are dropping support for a particular API version, you do not need to switch API versions.
+The current major version is *v2*. Unless informed by our technical support department that we are dropping support for a particular API version, you do not need to switch API versions.
 
 ## Prerequisites
 A connection to the paysafecard Store Locator API is successful if the following prerequisites are fulfilled:
@@ -62,8 +62,8 @@ For security reasons we will have rate limits in place:
 Every new business partner needs to first integrate the API in the test environment.
 Once the integration is finished, a UAT(User Acceptance Test) needs to be done in order to ensure a seemless integration flow.
 
-- The endpoint for the *test environment* is: https://apitest.paysafecard.com/v1/stores/
-- The endpoint for the *production environment* is: https://api.paysafecard.com/v1/stores/
+- The endpoint for the *test environment* is: https://apitest.paysafecard.com/v2/shops/
+- The endpoint for the *production environment* is: https://api.paysafecard.com/v2/shops/
 
 ## Interface Guidelines
 The paysafecard Store Locator API must be implemented accordingly to the interface guidelines provided by the paysafecard integration team with the test data package and the instructions in this document.
@@ -76,10 +76,8 @@ The paysafecard Store Locator API must be implemented accordingly to the interfa
 
     + lat: `48.3705878` (big decimal, optional) - Latitudinal search position (defaults to null). <br></br>
     + long: `10.8987651` (big decimal, optional) - Longitudinal search position (defaults to null). <br></br>
-    + radius: `100` (big decimal, optional) - Radius in kilometers around lat/long to search for stores (defaults to null). <br></br>
-    + limit: `2` (String, optional) - Number of results to return (defaults to null).  <br></br> Max. number of results allowed is 1000. <br></br>
-    + offset: `1` (String, optional) - Start position in the search results, used for pagination (defaults to null). <br></br> Max. offset number allowed is 1000000. <br></br>
-    + sortOrder: `ASC` (String, optional) - Sort order (defaults to null). <br></br> Possible values: `ASC` and `DSC`. <br></br>
+    + radius: `100` (big decimal, optional) - Radius in meters around lat/long to search for stores (defaults to 50000). <br></br>
+    + limit: `2` (String, optional) - Number of results to return (defaults to 20, optional).  <br></br> Max. number of results allowed is 1000. <br></br>
     + moneyFlowDirection: `IN` (String, optional) - Filter to be applied to the stores. <br></br> Available values: `IN` is to be used for Paysafecash  and `OUT` for Paysafecash cashout. To filter for paysafecard stores, this parameter must be left out from the request. <br></br> 
     + currency: `EUR` (String,optional) - In case the API key has multiple currencies the partner needs to specify which one the request is made for. <br></br>
 + Request
@@ -142,29 +140,28 @@ The paysafecard Store Locator API must be implemented accordingly to the interfa
 
 
 # Group Store Locator API Response Parameters
-| Parameter             | Type      | Example                                                           | Description                          
-| ---                   | ---       | ---                                                               | ---                                  
-| `posId`               | number    | 3713                                                              | The payment point ID.
-| `name`                | string    | Agip Tankstelle                                                   | The payment point name.
-| `address`             | string    | Allgäuer Str. 66                                                  | The payment point address.
-| `latitude`            | number    | 47.49912168                                                       | The payment point latitudinal coordinates.
-| `longitude`           | number    | 10.72036517                                                       | The payment point longitudinal coordinates.
-| `postalCode`          | string    | 6600                                                              | The payment point postal code.
-| `city`                | string    | Reutte                                                            | The payment city.
-| `cheatSheetURL`       | string    | https://www.paysafecard.com/include/posicon/special/www.orf.at    | The payment cheat sheet url.
-| `distributorId`       | number    | 78                                                                | The payment point distributor id.
-| `country`             | string    | AUT                                                               | The payment point country.
-| `posTypeLogo`         | string    | https://www.paysafecard.com/include/posicon/agip.gif              | The payment point logo.  
-| `productType`         | string    | mdirectload                                                       | The payment point accepted product.
-| `media`               | string    | EVoucher                                                          | The payment point media type.
-| `productLogo`         | string    | https://www.paysafecash.com/fileadmin/posicon/marker/agip.png     | The payment point icon/marker to be shown on the map.
-| `specialImage`        | string    | https://www.paysafecard.com/include/posicon/special/aral.gif      | The payment point special image.
-| `specialText`         | string    | ""                                                                | The payment point special text.
-| `cheatSheetText`      | string    | null                                                              | The payment point cheat sheet text.
-| `recommended`         | boolean   | false                                                             | The payment point recommended status. 
-| `distanceFromOrigin`  | number    | 97810.0                                                           | The payment point distance from the origin coordinates, in meters.
-| `storeFeedbacks`      | array     | []                                                                | The payment point customer feedback.
-| `directload`          | string    | false                                                             | The payment point acceptance of directload.
+| Parameter             | Type      | Example                                                             | Description                          
+| ---                   | ---       | ---                                                                 | ---                                  
+| `id`                  | number    | 3713                                                                | The payment point ID.
+| `distributorId`       | number    | 78                                                                  | The payment point distributor id.
+| `shopId`              | number    | 00005545                                                            | The payment point's shop ID.
+| `name`                | string    | Agip Tankstelle                                                     | The payment point name.
+| `address`             | string    | Allgäuer Str. 66                                                    | The payment point address.
+| `city`                | string    | Reutte                                                              | The payment city.
+| `recommended`         | boolean   | false                                                               | The payment point recommended status. 
+| `zipCode`             | string    | 6600                                                                | The payment point postal code.
+| `countryCode`         | string    | AUT                                                                 | The payment point country.
+| `longitude`           | number    | 10.72036517                                                         | The payment point longitudinal coordinates.
+| `latitude`            | number    | 47.49912168                                                         | The payment point latitudinal coordinates.
+| `phone`               | number    | +43123123123                                                        | The payment point's phone number.
+| `logoUrl`             | string    | https://www.paysafecard.com/include/posicon/agip.gif                | The payment point logo's url.
+| `logoThumbnailUrl`    | string    | null                                                                | The payment point's thumbnail logo URL.  
+| `pointOfSaleType`     | object    | {id: 744, name: "ch_bp", logoFilePath: "bp.gif", idAsString: "7444"}| The payment point's logo information.                                               
+| `pointOfSaleFeedback` | array     | []                                                                  | The payment point customer feedback.
+| `distanceFromOrigin`  | number    | 97810.0                                                             | The payment point distance from the origin coordinates, in meters.
+| `moneyFlowDirections` | array     | ["IN"]                                                              | The payment point's money flow directions.
+| `excludeFromTransaction`| boolean | false                                                               | The payment point's transaction exclusion.
+
 
 # Group Store Locator API Error Codes
 |Code                           |Number (optional)  |HTTP Status    |Description          |
