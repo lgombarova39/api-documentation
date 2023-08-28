@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: https://apitest.paysafecard.com/v1
+HOST: https://apitest.paysafecard.com/v2
 
 # paysafecard Store Locator API
 
@@ -48,7 +48,7 @@ Every request to the paysafecard API is authenticated using an API key.
 Below is an example of how the API key is supposed to be set.
 
 ```
-Authorization: Basic cHNjX0R4dThqSnI1LVdPYXhLWnpjOXdyMUtNLXd1Y3dZMXg=
+Authorization: Basic cHNjXzYydXdPYkJnRkxn000XeXZwSlMtNE9weXRtUS1XN3Y=
 ```
 
 ## Rate limits
@@ -68,7 +68,7 @@ Once the integration is finished, a UAT(User Acceptance Test) needs to be done i
 ## Interface Guidelines
 The paysafecard Store Locator API must be implemented accordingly to the interface guidelines provided by the paysafecard integration team with the test data package and the instructions in this document.
 
-## Store Locator API Request [/stores?lat={lat}8&long={long}&radius={radius}&limit={limit}&offset={offset}&sortOrder={sortOrder}&moneyFlowDirection={moneyFlowDirection}&currency={currency}]
+## Store Locator API Request [/shops?lat={lat}8&long={long}&radius={radius}&limit={limit}&moneyFlowDirection={moneyFlowDirection}&currency={currency}]
 
 ### locate stores [GET]
 
@@ -84,57 +84,61 @@ The paysafecard Store Locator API must be implemented accordingly to the interfa
 
     + Headers
             
-            Authorization: Basic cHNjX0JUMlpXRWVjZ01BOXZiU1RFQS0yd2tBQVM2aHVzbjg=
+            Authorization: Basic cHNjXzYydXdPYkJnRkxn000XeXZwSlMtNE9weXRtUS1XN3Y=
             Content-Type: application/json
 
 + Response 200 (application/json)
 
         [
         {
-        "posId": 3713,
+        "id": 3713,
+        "distributorId": 78,
         "name": "Agip Tankstelle",
         "address": "Allgäuer Str. 66",
-        "latitude": 47.49912168,
-        "longitude": 10.72036517,
-        "postalCode": "6600",
         "city": "Reutte",
-        "cheatSheetURL": "https://www.paysafecard.com/include/posicon/special/www.orf.at",
-        "distributorId": 78,
-        "country": "AUT",
-        "posTypeLogo": "https://www.paysafecard.com/include/posicon/agip.gif",
-        "productType": "mdirectload",
-        "media": "EVoucher",
-        "productLogo": "https://www.paysafecash.com/fileadmin/posicon/marker/agip.png",
-        "specialImage": "https://www.paysafecard.com/include/posicon/special/aral.gif",
-        "specialText": "",
-        "cheatSheetText": "www.orf.at",
         "recommended": "false",
+        "zipCode": "6600",
+        "countryCode": "AT",
+        "longitude": 10.72036517,
+        "latitude": 47.49912168,
+        "phone": null,
+        "logoUrl": "https://www.paysafecard.com/include/posicon/special/www.orf.at",
+        "logoThumbnailUrl": "https://www.paysafecard.com/include/posicon/agip.gif",
+        "pointOfSaleType": {
+            "id": 697747,
+            "name": "default.gif",
+            "logoFilePath": "default.gif",
+            "idAsString": "697747"
+        },
+        "pointOfSaleFeedback": [],
         "distanceFromOrigin": 97810.0,
-        "storeFeedbacks": [],
-        "directload": false
+         "moneyFlowDirections": ["IN"],
+        "excludeFromTransaction": false
         },
         {
         "posId": 2551988,
+        "distributorId": 271,
         "name": "Eni Service Station",
         "address": "Allgauer Strasse 66",
-        "latitude": 47.4990925,
-        "longitude": 10.7201985,
-        "postalCode": "6600",
         "city": "Reutte",
-        "cheatSheetURL": null,
-        "distributorId": 271,
-        "country": "AUT",
-        "posTypeLogo": null,
-        "productType": "mdirectload",
-        "media": "EVoucher",
-        "productLogo": "https://www.paysafecash.com/fileadmin/posicon/marker/default.png",
-        "specialImage": null,
-        "specialText": "",
-        "cheatSheetText": null,
-        "recommended": "false",
-        "distanceFromOrigin": 97815.0,
-        "storeFeedbacks": [],
-        "directload": false
+        "recommended": "true",
+        "zipCode": "6600",
+        "country": "AT",
+        "longitude": 10.7201985,
+        "latitude": 47.4990925,
+        "phone": null,
+        "logoUrl": "https://www.paysafecash.com/fileadmin/posicon/marker/default.png",
+        "logoThumbnailUrl": null,
+         "pointOfSaleType": {
+            "id": 697747,
+            "name": "default.gif",
+            "logoFilePath": "default.gif",
+            "idAsString": "697747"
+        },
+        "pointOfSaleFeedback": [],
+        "distanceFromOrigin": 231083.0,
+        "moneyFlowDirections": ["IN"],
+        "excludeFromTransaction": false
         }
         ]
 
@@ -174,7 +178,7 @@ The paysafecard Store Locator API must be implemented accordingly to the interfa
 
 **curl**
 ```curl
-curl -X GET "https://api.paysafecard.com/v1/stores?lat=&long=&radius=&limit=&offset=&sortOrder=&moneyFlowDirection="
+curl -X GET "https://api.paysafecard.com/v2/shops?lat=&long=&radius=&limit=&moneyFlowDirection=&currency="
 ```
 
 **Java**
@@ -210,6 +214,7 @@ public class StoresApiExample {
     }
 }
 ```
+> Please note the request parameters in the above are not up to date.
 
 **Android**
 ```android
@@ -237,6 +242,8 @@ public class StoresApiExample {
     }
 }
 ```
+> Please note the request parameters in the above are not up to date.
+
 
 **Obj-c**
 ```obj-c
@@ -269,6 +276,8 @@ StoresApi *apiInstance = [[StoresApi alloc] init];
                             }
                         }];
 ```
+> Please note the request parameters in the above are not up to date.
+
 
 **Javascript**
 ```javascript
@@ -295,6 +304,8 @@ var callback = function(error, data, response) {
 };
 api.getStores(lat, long, opts, callback);
 ```
+> Please note the request parameters in the above are not up to date.
+
 
 **C#**
 ```c#
@@ -335,6 +346,8 @@ namespace Example
     }
 }
 ```
+> Please note the request parameters in the above are not up to date.
+
 
 **PHP**
 ```php
@@ -359,6 +372,8 @@ try {
 }
 ?>
 ```
+> Please note the request parameters in the above are not up to date.
+
 
 **Perl**
 ```perl
@@ -384,6 +399,8 @@ if ($@) {
     warn "Exception when calling StoresApi->getStores: $@\n";
 }
 ```
+> Please note the request parameters in the above are not up to date.
+
 
 **Pyhton**
 ```python
@@ -412,6 +429,8 @@ except ApiException as e:
     print("Exception when calling StoresApi->getStores: %s\n" % e)
 
 ```
+> Please note the request parameters in the above are not up to date.
+
 
 **Rust**
 ```rust
@@ -433,3 +452,4 @@ pub fn main() {
 
 }
 ```
+> Please note the request parameters in the above are not up to date.
