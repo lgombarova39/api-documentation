@@ -45,7 +45,7 @@ Every request to the paysafecard API is authenticated using an API key.
 - Your API key may only be used from your backend systems.
 - **Please note:** Your API key must be kept secured - never expose the API key to anybody!
 
-Below is an example of how the API key is supposed to be set.
+Below is an example of how the API key is supposed to be set (please note that the example cannot be used for requests).
 
 ```
 Authorization: Basic cHNjXzYydXdPYkJnRkxn000XeXZwSlMtNE9weXRtUS1XN3Y=
@@ -110,9 +110,17 @@ The paysafecard Store Locator API must be implemented accordingly to the interfa
             "logoFilePath": "default.gif",
             "idAsString": "697747"
         },
-        "pointOfSaleFeedback": [],
+        "pointOfSaleProducts": [
+            {
+                "shortName": "mdl",
+                "longName": "mdirectload",
+                "productCode": "023"
+            }
+        ],
+        "pointOfSaleRatings": [],
         "distanceFromOrigin": 97810.0,
          "moneyFlowDirections": ["IN"],
+         "openingHours":null,
         "excludeFromTransaction": false
         },
         {
@@ -135,9 +143,17 @@ The paysafecard Store Locator API must be implemented accordingly to the interfa
             "logoFilePath": "default.gif",
             "idAsString": "697747"
         },
-        "pointOfSaleFeedback": [],
+         "pointOfSaleProducts": [
+            {
+                "shortName": "psc",
+                "longName": "paysafecard",
+                "productCode": "001"
+            }
+        ],
+        "pointOfSaleRatings": [],
         "distanceFromOrigin": 231083.0,
         "moneyFlowDirections": ["IN"],
+        "openingHours":null,
         "excludeFromTransaction": false
         }
         ]
@@ -161,9 +177,11 @@ The paysafecard Store Locator API must be implemented accordingly to the interfa
 | `logoUrl`             | string    | https://www.paysafecard.com/include/posicon/agip.gif                | The payment point logo's url.
 | `logoThumbnailUrl`    | string    | null                                                                | The payment point's thumbnail logo URL.  
 | `pointOfSaleType`     | object    | {id: 744, name: "ch_bp", logoFilePath: "bp.gif", idAsString: "7444"}| The payment point's logo information.                                               
-| `pointOfSaleFeedback` | array     | []                                                                  | The payment point customer feedback.
+| `pointOfSaleProducts` | array     | [{ shortName: "mdl", longName: "mdirectload", productCode: "003"}]  | The payment point's products.
+| `pointOfSaleRatings`  | array     | []                                                                  | The payment point customer feedback.
 | `distanceFromOrigin`  | number    | 97810.0                                                             | The payment point distance from the origin coordinates, in meters.
 | `moneyFlowDirections` | array     | ["IN"]                                                              | The payment point's money flow directions.
+| `openingHours`        | string    | null                                                                | The payment point's opening hours.
 | `excludeFromTransaction`| boolean | false                                                               | The payment point's transaction exclusion.
 
 
