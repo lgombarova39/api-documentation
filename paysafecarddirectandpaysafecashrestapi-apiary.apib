@@ -115,20 +115,27 @@ Step 4: The difference between this 2 numbers is the check digit: 140 - 136 = 4
 ## paysafecard direct, Paysafecash and viacash Product Identifiers
 
 ### paysafecard direct
-The full list of available product identifiers per country can be found [here](https://www.paysafecash.com/fileadmin/5_API/paysafecard_direct_and_Paysafecash_product_identifiers.pdf).
+The full list of available product identifiers per country can be found [here](https://www.paysafecash.com/fileadmin/5_API/paysafecard_direct_and_Paysafecash_product_identifiers_2.pdf).
+
+https://www.paysafecash.com/fileadmin/5_API/paysafecard_direct_and_Paysafecash_product_identifiers_2.pdf
 
 ### Paysafecash EAN-128
-|EAN                |Country            |Product                                                |Product API name    
-|---                |---                |---                                                    |---     
-|9120005818927      |EU + UK            |COTP 3 - Paysafecash 1.0                               |MDIRECTLOAD
-|9120005818941      |EU + UK            |COTP 5 - Paysafecash 2.0 cash-in                       |IN_005_BANKING_EMI     
-|9120005818989      |EU + UK            |COTP 21 - Paysafecash 2.0 cahs-in special agreement    |IN_021_FINSERVICE_EMI
+|EAN                |Country            |Product description                                    |Receipt name                   |Product API name    
+|---                |---                |---                                                    |---                            |---     
+|9120005818927      |EU + UK            |COTP 3 - Paysafecash 1.0                               |Paysafecash (classic)          |MDIRECTLOAD
+|9120005818941      |EU + UK            |COTP 5 - Paysafecash 2.0 cash-in                       |Paysafecash banking deposits   |IN_005_BANKING_EMI     
+|9120005818965      |AT, CH, ES, IT, GR |COTP 7 - Paysafecash 2.0 cash-in banking deposits      |Paysafecash banking deposits   |IN_007_BANKING_EXT     
+|9120005818989      |EU + UK            |COTP 21 - Paysafecash 2.0 cash-in special agreement    |Paysafecash Financial Services |IN_021_FINSERVICE_EMI
+|9120005819009      |EU                 |COTP 23 - Paysafecash 2.0 cash-in cobranded iGaming    |Paysafecash iGaming            |IN_023_IGAMING_EMI     
+
 
 ### Paysafecash cashout EAN-128
-|EAN                |Country            |Product                                                |Product API name    
-|---                |---                |---                                                    |---     
-|9120005818958      |EU + UK            |COTP 6 - Paysafecash 2.0 cash-out                      |OUT_006_BANKING_EMI     
-|9120005818996      |EU + UK            |COTP 22 - Paysafecash 2.0 cash-out special agreement   |OUT_022_FINSERVICE_EMI
+|EAN                |Country            |Product description                                    |Receipt name                   |Product API name    
+|---                |---                |---                                                    |---                            |---     
+|9120005818958      |EU + UK            |COTP 6 - Paysafecash 2.0 cash-out                      |Paysafecash banking cashouts   |OUT_006_BANKING_EMI     
+|9120005818996      |EU + UK            |COTP 22 - Paysafecash 2.0 cash-out special agreement   |Paysafecash cashout Financial Services |OUT_022_FINSERVICE_EMI
+|9120005819016      |EU + UK            |COTP 24 - Paysafecash 2.0 cash-out cobranded iGaming   |Paysafecash iGaming cashouts   |OUT_024_IGAMING_EMI
+
 
 ### Paysafecash UPC
 |UPC            |Country    |Product        |Currency    
@@ -189,10 +196,10 @@ coming soon
 
 ## viacash Voucher Print-out
 "Success" receipt template for regular transactions
-![viacash](https://www.paysafecash.com/fileadmin/5_API/viacash_receipt_success.png "viacash success receipt") 
+![viacash](https://www.paysafecash.com/fileadmin/5_API/viacash_barcode_receipt_success.png "viacash success receipt") 
 
 "Fallback" receipt template for offline situations
-![viacash](https://www.paysafecash.com/fileadmin/5_API/viacash_receipt_fallback.png "viacash fallback receipt")
+![viacash](https://www.paysafecash.com/fileadmin/5_API/viacash_barcode_receipt_fallback.png "viacash fallback receipt")
 
 # Integration Process Overview
 The following steps need to be completed in order to integrate the API.
@@ -815,6 +822,13 @@ If the limit is reached, the PoD system will return the error code:
     "number": 3202
 }
 ```
+
+# Group Shop Registration
+Due to regulatory reasons, we are required to provide acurate information where the Paysafe product sale is taking place.
+
+Please find the documentation below:
+
+https://www.paysafecard.com/fileadmin/api/pin-on-demand.html#/reference/shop-registration
 
 # Group Reconciliation / Sales Reporting 
 paysafecard direct and Paysafecash orders are visible in the daily Pin-on-Demand reconciliation file
