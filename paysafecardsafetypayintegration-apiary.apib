@@ -26,6 +26,21 @@ There are also some technical integration changes necessary, which will be descr
 ## Introduction
 There are alternative payment flows to integrate SafetyPay into your payment ecosystem. In the following section we will describe the general customer flow for each of the alternatives.
 <a name="existing_MID"></a>
+
+# Group Technical changes
+<a name="technical_changes"></a>
+
+1. The logo must be changed accordingly at the checkout page 
+
+2. Transactions must stay open for 48 hours before you can consider them incomplete
+
+3. (Optional) The payment must be created accordingly to the choice of the customer at the checkout page. The integrations supports the usage of choosing the Payment Method during the Payment request. See section [Initiating a SafetyPay Payment - REST](#restrictions_REST) or [Creating a SafetyPay Disposition - SOAP](#restrictions_SOPG)
+    * [Initiating a SafetyPay Payment - REST](#restrictions_REST)
+    * [Creating a SafetyPay Disposition - SOAP](#restrictions_SOPG)
+    
+4. (Optional) Integrating the payment notification payload in JSON 
+    * The [JSON payment notification](#payment_notification) enables the business partner to distinguish which payment instrument subtype was used for the transaction.
+
 # Group Payment Process  with intermediary paysafecard redirection
 
 ## SafetyPay payment option on the paysafecard Payment Panel
@@ -66,7 +81,7 @@ There are alternative payment flows to integrate SafetyPay into your payment eco
 
 ### [Customer Flow](#customer_flows)
 1. The customer selects SafetyPay as the preferred payment method at the business partner checkout page
-2. The businesss partner initiates the payment with "payment_instrument" & "payment_instrument_subtype" parameters set
+2. The businesss partner initiates the payment with "payment_instrument" & "payment_instrument_subtype" parameters set. "payment_instrument" is mandatory when providing "payment_instrument_subtype"
 3. The customer is redirected to the SafetyPay hosted payment page
 4. The customer is presented with the selected option to complete their payment depening on the "payment_instrument_subtype" set during the request: Cash or Online
     * "online" - Flow:
@@ -93,20 +108,6 @@ There are alternative payment flows to integrate SafetyPay into your payment eco
 ![Payment Flow](https://www.paysafecard.com/fileadmin/api/images/Diagram_SafetyPay_ONLINE_noPP.jpg)
 
 
-
-# Group Technical changes
-<a name="technical_changes"></a>
-
-1. The logo must be changed accordingly at the checkout page 
-
-2. Transactions must stay open for 48 hours before you can consider them incomplete
-
-3. (Optional) The payment must be created accordingly to the choice of the customer at the checkout page. The integrations supports the usage of choosing the Payment Method during the Payment request. See section [Initiating a SafetyPay Payment - REST](#restrictions_REST) or [Creating a SafetyPay Disposition - SOAP](#restrictions_SOPG)
-    * [Initiating a SafetyPay Payment - REST](#restrictions_REST)
-    * [Creating a SafetyPay Disposition - SOAP](#restrictions_SOPG)
-    
-4. (Optional) Integrating the payment notification payload in JSON 
-    * The [JSON payment notification](#payment_notification) enables the business partner to distinguish which payment instrument subtype was used for the transaction.
 
 # Group Customer Data Takeover
 Using the `customer_data_takeover` parameters in the payment creation, the merchant can pre-fill some data to improve the customer flow.
@@ -153,9 +154,9 @@ at the merchant's checkout. When choosing the `payment_instrument`, the customer
 | Parameter                     | Type                       | Description      | Possible values
 | ---                           | ---                        | ---              | ---                  
 | `restrictions`                | Array                      | The payment restrictions array.
-| `payment_instrument`          | String                     | The payment instrument gives the possibility to initiate the payment for the specific option chosen at the merchant's checkout page. |`paysafecard`, `safetypay`
+| `payment_instrument`          | String                     | The payment instrument gives the possibility to initiate the payment for the specific option chosen at the merchant's checkout page. "payment_instrument" is mandatory when providing "payment_instrument_subtype" |`paysafecard`, `safetypay`
 | `payment_instrument_subtype`  | String                     | The payment instrument subtype gives the possibility to initiate the payment for the specific option chosen at the merchant's checkout page. |`cash`,`online`
-| `bank_ids`                    | Numerical Array            | The bank ID restriction gives the possibility to only show certain bank options. It is an array that allows multiple options. Only 74 characters can be sent (14 bank IDs).   | A list of bank IDs can be found at the bottom under ["Bank IDs"](#bank_ids)
+| `bank_ids`                    | Numerical Array            | The bank ID restriction gives the possibility to only show certain bank options. It is an array that allows multiple options. Only 74 characters can be sent (14 bank IDs). Providing "bank_id" without providing the "payment_instrument" will show all the available payment methods.  | A list of bank IDs can be found at the bottom under ["Bank IDs"](#bank_ids)
 
 ### Initiate Payment Example
 
@@ -712,7 +713,7 @@ Sending this parameter without "payment_instrument" does not limit the customer 
 | online | MX | 1052 | HSBC Mexico | HSBC Mexico
 | cash   | MX | 8178 | OpenPay | OpenPay
 | cash   | MX | 8419 | PayCash | Paycash  
-| online | MX | 8191 | SPEI MX | OpenPay Online
+| online | MX | 8526 | SPEI STP | STP
 | cash   | MX | 8395 | Santander MEX WS | Banco Santander
 | online | MX | 8395 | Santander MEX WS | Banco Santander
 | online | MX | 1007 | Scotiabank Mexico | Scotiabank Mexico
@@ -748,6 +749,10 @@ Sending this parameter without "payment_instrument" does not limit the customer 
 | cash   | SV | 8300 | Punto Xpress SLV | Punto Xpress SLV
 
 ####Bank ID Updates:
+#####2023-09-05
+Removed "SPEI MX" 8191 (MX)
+Added "SPEI STP" 8526 (MX)
+
 #####2023-04-17
 Added "Paycash Costa Rica" 8531 (CR)
 
